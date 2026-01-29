@@ -29,10 +29,11 @@ import './CMS.css';
 // API Configuration - Update these when connecting to backend
 const API_CONFIG = {
     // Use Vite proxy (see vite.config.js). Backend is on :5000.
-    BASE_URL: '',
+    BASE_URL: 'http://localhost:8000',
     ENDPOINTS: {
         UPLOAD: '/api/content/upload',
         LIST: '/api/content',
+        SEARCH: '/api/search', // Add Search Endpoint
         DELETE: '/api/content',
         REPROCESS: '/api/content/reprocess',
         CATEGORIES: '/api/categories'
@@ -40,6 +41,7 @@ const API_CONFIG = {
 };
 
 const CMS = () => {
+    // ... (refs and state)
     const fileInputRef = useRef(null);
     const [dragActive, setDragActive] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -48,9 +50,10 @@ const CMS = () => {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [uploadFiles, setUploadFiles] = useState([]);
     const [selectedContent, setSelectedContent] = useState(null);
-    
+
     // Loading and error states
     const [isLoading, setIsLoading] = useState(false);
+    const [isSearching, setIsSearching] = useState(false); // Add search loading state
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState(null);
     const [uploadProgress, setUploadProgress] = useState({});
@@ -65,6 +68,7 @@ const CMS = () => {
     // Fetch content from API on mount
     useEffect(() => {
         fetchContent();
+        // ... (Category fetch)
         (async () => {
             try {
                 const r = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CATEGORIES}`);
@@ -76,6 +80,45 @@ const CMS = () => {
             }
         })();
     }, []);
+
+    // Autocomplete Suggestions logic
+    const [suggestions, setSuggestions] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+
+    // Effect for Search Debounce & Suggestions
+    // Effect for Search Debounce & Suggestions
+    useEffect(() => {
+        // 1. Instant Local Suggestions (Autocomplete)
+        if (searchQuery.length > 0) {
+            const lowerQuery = searchQuery.toLowerCase();
+            const matches = contentLibrary.filter(item =>
+                item.name.toLowerCase().includes(lowerQuery)
+            ).slice(0, 5); // Limit to 5 suggestions
+            setSuggestions(matches);
+            setShowSuggestions(true);
+        } else {
+            setSuggestions([]);
+            setShowSuggestions(false);
+            // Moved fetchContent() to a separate effect to avoid loop
+        }
+
+        // 2. Debounced API Semantic Search
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery.length > 2) {
+                performSearch(searchQuery);
+            }
+        }, 600);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery]); // Removed contentLibrary from dependency array to fix LOOP
+
+    // Separate effect to reset content when search is cleared
+    useEffect(() => {
+        if (searchQuery.length === 0) {
+            fetchContent();
+        }
+    }, [searchQuery]);
+
 
     // API Functions - Ready for backend integration
     const fetchContent = async () => {
@@ -92,6 +135,28 @@ const CMS = () => {
             setContentLibrary([]);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const performSearch = async (query) => {
+        setIsSearching(true);
+        try {
+            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SEARCH}?q=${encodeURIComponent(query)}`);
+
+            // Fix: Check content type before parsing
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Received non-JSON response from server");
+            }
+
+            if (!response.ok) throw new Error('Search failed');
+            const data = await response.json();
+            setContentLibrary(data);
+        } catch (err) {
+            console.error('Search failed:', err);
+            // Fallback: If API fails, keep showing local filter results
+        } finally {
+            setIsSearching(false);
         }
     };
 
@@ -227,14 +292,14 @@ const CMS = () => {
     const handleUpload = async () => {
         setIsUploading(true);
         setError(null);
-        
+
         const results = [];
-        
+
         for (const file of uploadFiles) {
             try {
                 // Update progress for this file
                 setUploadProgress(prev => ({ ...prev, [file.id]: 'uploading' }));
-                
+
                 const result = await uploadToServer(file, {
                     category: file.category,
                     tags: file.tags,
@@ -243,13 +308,13 @@ const CMS = () => {
                     week: file.week,
                     contentType: file.contentType,
                 });
-                
+
                 setUploadProgress(prev => ({ ...prev, [file.id]: 'complete' }));
                 results.push(result);
             } catch (err) {
                 console.error(`Failed to upload ${file.name}:`, err);
                 setUploadProgress(prev => ({ ...prev, [file.id]: 'error' }));
-                
+
                 // For now, add locally with processing status when API not available
                 const localContent = {
                     id: Date.now() + Math.random(),
@@ -266,22 +331,23 @@ const CMS = () => {
                 setContentLibrary(prev => [localContent, ...prev]);
             }
         }
-        
+
         // Refresh content list after upload
         await fetchContent();
-        
+
         setUploadFiles([]);
         setUploadProgress({});
         setShowUploadModal(false);
         setIsUploading(false);
     };
 
+    // Simplified client-side filtering (Mainly for Categories now, since Search is API driven)
     const filteredContent = contentLibrary.filter(item => {
-        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (item.tags && item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())));
+        // If searching via API, we might skip client-side name filtering or keep it as secondary
+        // For now, let's keep Category/Status filters active on top of search results
         const matchesCategory = selectedCategory === 'all' || item.category?.toLowerCase() === selectedCategory.toLowerCase();
         const matchesStatus = selectedStatus === 'all' || item.status?.toLowerCase() === selectedStatus.toLowerCase();
-        return matchesSearch && matchesCategory && matchesStatus;
+        return matchesCategory && matchesStatus;
     });
 
     const deleteContent = async (id) => {
@@ -305,7 +371,7 @@ const CMS = () => {
         try {
             await reprocessContent(id);
             // Update local state
-            setContentLibrary(prev => prev.map(item => 
+            setContentLibrary(prev => prev.map(item =>
                 item.id === id ? { ...item, status: 'processing' } : item
             ));
         } catch (err) {
@@ -412,15 +478,42 @@ const CMS = () => {
                 <div className="library-header">
                     <h2><FolderOpen size={24} /> Content Library</h2>
                     <div className="library-controls">
-                        <div className="search-box">
-                            <Search size={18} />
-                            <input
-                                type="text"
-                                placeholder="Search files or tags..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
+
+                        {/* SEARCH BOX WITH AUTOCOMPLETE */}
+                        <div className="search-box-wrapper" style={{ position: 'relative' }}>
+                            <div className="search-box">
+                                <Search size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="Search topic or filename..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)} // Delay to allow click
+                                    onFocus={() => searchQuery.length > 0 && setShowSuggestions(true)}
+                                />
+                            </div>
+
+                            {/* Suggestions Dropdown */}
+                            {showSuggestions && suggestions.length > 0 && (
+                                <div className="search-suggestions glass-panel">
+                                    {suggestions.map(s => (
+                                        <div
+                                            key={s.id}
+                                            className="suggestion-item"
+                                            onClick={() => {
+                                                setSearchQuery(s.name);
+                                                setSelectedContent(s); // Open details immediately
+                                                setShowSuggestions(false);
+                                            }}
+                                        >
+                                            {getFileIcon(s.type)}
+                                            <span>{s.name}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
+
                         <div className="filter-dropdown">
                             <Filter size={18} />
                             <select
@@ -449,17 +542,17 @@ const CMS = () => {
 
                 <div className="content-grid-wrapper">
                     <div className={`content-grid ${selectedContent ? 'with-details' : ''}`}>
-                        {isLoading ? (
+                        {(isLoading || isSearching) ? (
                             <div className="empty-state glass-panel">
                                 <Loader2 size={48} className="spinning" />
-                                <h3>Loading content...</h3>
-                                <p>Please wait while we fetch your content library.</p>
+                                <h3>{isSearching ? 'Searching knowledge base...' : 'Loading content...'}</h3>
+                                <p>Please wait while we {isSearching ? 'find relevant materials' : 'fetch your content library'}.</p>
                             </div>
                         ) : filteredContent.length === 0 ? (
                             <div className="empty-state glass-panel">
                                 <FolderOpen size={64} />
                                 <h3>{contentLibrary.length === 0 ? 'No content yet' : 'No matching content'}</h3>
-                                <p>{contentLibrary.length === 0 
+                                <p>{contentLibrary.length === 0
                                     ? 'Use the upload zone above to add your learning materials.'
                                     : 'Try adjusting your search or filters.'}
                                 </p>

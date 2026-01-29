@@ -12,14 +12,21 @@
   "dependencies": {
     "@pinecone-database/pinecone": "^6.1.4",
     "@supabase/supabase-js": "^2.93.2",
+    "jspdf": "^4.0.0",
+    "katex": "^0.16.28",
     "lucide-react": "^0.563.0",
     "mime-types": "^3.0.2",
     "multer": "^2.0.2",
     "openai": "^6.17.0",
     "pdf-parse": "^2.4.5",
+    "pptxgenjs": "^4.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.13.0",
+    "react-syntax-highlighter": "^16.1.0",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

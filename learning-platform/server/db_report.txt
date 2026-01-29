@@ -1,0 +1,18 @@
+DB Report:
+Connected!
+Databases: learning_platform, sample_mflix, test, admin, local
+
+--- Checking 'learning_platform' ---
+ - contents: 0
+
+--- Checking 'test' DB (Default) ---
+ - vectorchunks: 0
+ - validationresults: 3
+ - handwrittennotes: 1
+ - materials: 0
+ - users: 3
+ - communityposts: 2
+ - generatedcontents: 2
+ - videosummaries: 1
+ - coursematerials: 10
+ - chatsessions: 1

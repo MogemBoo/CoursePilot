@@ -1,0 +1,23 @@
+{
+  "_id": "697ae3fa99858a1e08a94364",
+  "title": "Introduction to Data Structures",
+  "type": "slide",
+  "category": "Theory",
+  "link": "https://example.com/slides/week1-intro.pdf",
+  "content": "Introduction to fundamental data structures including arrays, linked lists, stacks, and queues. Covers time complexity analysis.",
+  "contentType": "lecture_slide",
+  "metadata": {
+    "topic": "Data Structures Basics",
+    "week": 1,
+    "tags": [
+      "data-structures",
+      "arrays",
+      "linked-lists",
+      "fundamentals"
+    ],
+    "description": "Week 1 lecture slides covering basic data structures"
+  },
+  "uploadedBy": "697ae3fa99858a1e08a9435d",
+  "uploadedAt": "2026-01-29T04:37:14.894Z",
+  "__v": 0
+}
