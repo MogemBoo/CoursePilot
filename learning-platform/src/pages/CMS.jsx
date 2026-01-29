@@ -26,9 +26,9 @@ import {
 } from 'lucide-react';
 import './CMS.css';
 
-// API Configuration - Update these when connecting to backend
+// API Configuration - Backend runs on port 5000
 const API_CONFIG = {
-    BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+    BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
     ENDPOINTS: {
         UPLOAD: '/api/content/upload',
         LIST: '/api/content',
@@ -57,8 +57,8 @@ const CMS = () => {
     // Content library - will be populated from API
     const [contentLibrary, setContentLibrary] = useState([]);
 
-    // Categories - can be fetched from API or use defaults
-    const [categories, setCategories] = useState(['All', 'Machine Learning', 'Deep Learning', 'Programming', 'Computer Science', 'Mathematics', 'Other']);
+    // Categories - matching backend enum values
+    const [categories, setCategories] = useState(['All', 'Theory', 'Lab']);
     const statuses = ['All', 'Processed', 'Processing', 'Error'];
 
     // Fetch content from API on mount
@@ -87,9 +87,11 @@ const CMS = () => {
     const uploadToServer = async (file, metadata) => {
         const formData = new FormData();
         formData.append('file', file.file);
-        formData.append('category', metadata.category || 'Other');
-        formData.append('tags', JSON.stringify(metadata.tags || []));
+        formData.append('category', metadata.category || 'Theory');
+        formData.append('tags', (metadata.tags || []).join(','));
         formData.append('description', metadata.description || '');
+        formData.append('topic', metadata.topic || '');
+        formData.append('week', metadata.week || '');
 
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.UPLOAD}`, {
             method: 'POST',
