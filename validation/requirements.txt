@@ -1,0 +1,17 @@
+# Part 4: Content Validation & Evaluation System
+# Python dependencies
+
+# Web framework for API
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# LLM integration
+openai>=1.0.0
+python-dotenv>=1.0.0
+
+# Optional: Anthropic Claude (alternative to OpenAI)
+# anthropic>=0.18.0
+
+# Optional: Enhanced code validation
+# pylint>=3.0.0
+# black>=23.0.0

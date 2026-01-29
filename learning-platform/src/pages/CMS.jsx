@@ -28,12 +28,12 @@ import './CMS.css';
 
 // API Configuration - Update these when connecting to backend
 const API_CONFIG = {
-    BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+    BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
     ENDPOINTS: {
-        UPLOAD: '/api/content/upload',
-        LIST: '/api/content',
-        DELETE: '/api/content',
-        REPROCESS: '/api/content/reprocess',
+        UPLOAD: '/upload',
+        LIST: '/api/files',
+        DELETE: '/api/files',
+        REPROCESS: '/api/files/reprocess',
         CATEGORIES: '/api/categories'
     }
 };
@@ -87,7 +87,8 @@ const CMS = () => {
     const uploadToServer = async (file, metadata) => {
         const formData = new FormData();
         formData.append('file', file.file);
-        formData.append('category', metadata.category || 'Other');
+        formData.append('fileType', metadata.fileType || 'Theory');
+        formData.append('category', metadata.category || 'General');
         formData.append('tags', JSON.stringify(metadata.tags || []));
         formData.append('description', metadata.description || '');
 
