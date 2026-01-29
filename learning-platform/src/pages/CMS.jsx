@@ -28,7 +28,8 @@ import './CMS.css';
 
 // API Configuration - Update these when connecting to backend
 const API_CONFIG = {
-    BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+    // Use Vite proxy (see vite.config.js). Backend is on :5000.
+    BASE_URL: '',
     ENDPOINTS: {
         UPLOAD: '/api/content/upload',
         LIST: '/api/content',
@@ -57,13 +58,23 @@ const CMS = () => {
     // Content library - will be populated from API
     const [contentLibrary, setContentLibrary] = useState([]);
 
-    // Categories - can be fetched from API or use defaults
-    const [categories, setCategories] = useState(['All', 'Machine Learning', 'Deep Learning', 'Programming', 'Computer Science', 'Mathematics', 'Other']);
+    // Categories - fetched from API (fallback to defaults)
+    const [categories, setCategories] = useState(['All', 'Theory', 'Lab', 'Machine Learning', 'Deep Learning', 'Programming', 'Computer Science', 'Mathematics', 'Other']);
     const statuses = ['All', 'Processed', 'Processing', 'Error'];
 
     // Fetch content from API on mount
     useEffect(() => {
         fetchContent();
+        (async () => {
+            try {
+                const r = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CATEGORIES}`);
+                if (!r.ok) return;
+                const data = await r.json();
+                if (Array.isArray(data.categories)) setCategories(data.categories);
+            } catch {
+                // ignore
+            }
+        })();
     }, []);
 
     // API Functions - Ready for backend integration
@@ -90,6 +101,9 @@ const CMS = () => {
         formData.append('category', metadata.category || 'Other');
         formData.append('tags', JSON.stringify(metadata.tags || []));
         formData.append('description', metadata.description || '');
+        formData.append('topic', metadata.topic || '');
+        formData.append('week', metadata.week || '');
+        formData.append('contentType', metadata.contentType || '');
 
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.UPLOAD}`, {
             method: 'POST',
@@ -180,6 +194,9 @@ const CMS = () => {
             category: '',
             tags: [],
             description: '',
+            topic: '',
+            week: '',
+            contentType: '',
             progress: 0
         }));
         setUploadFiles([...uploadFiles, ...newFiles]);
@@ -221,7 +238,10 @@ const CMS = () => {
                 const result = await uploadToServer(file, {
                     category: file.category,
                     tags: file.tags,
-                    description: file.description
+                    description: file.description,
+                    topic: file.topic,
+                    week: file.week,
+                    contentType: file.contentType,
                 });
                 
                 setUploadProgress(prev => ({ ...prev, [file.id]: 'complete' }));
@@ -295,6 +315,17 @@ const CMS = () => {
 
     const handleSync = async () => {
         await fetchContent();
+    };
+
+    const openContent = async (id) => {
+        try {
+            const resp = await fetch(`${API_CONFIG.BASE_URL}/api/content/${id}/open`);
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Failed to open file');
+            window.open(data.url, '_blank', 'noreferrer');
+        } catch (e) {
+            setError(e.message);
+        }
     };
 
     return (
@@ -448,7 +479,7 @@ const CMS = () => {
                                             <button className="icon-btn" onClick={(e) => { e.stopPropagation(); }}>
                                                 <Eye size={16} />
                                             </button>
-                                            <button className="icon-btn" onClick={(e) => { e.stopPropagation(); }}>
+                                            <button className="icon-btn" onClick={(e) => { e.stopPropagation(); openContent(item.id); }}>
                                                 <Download size={16} />
                                             </button>
                                             <button className="icon-btn danger" onClick={(e) => { e.stopPropagation(); deleteContent(item.id); }}>
@@ -537,7 +568,7 @@ const CMS = () => {
                                 </div>
 
                                 <div className="detail-actions">
-                                    <button className="btn-secondary">
+                                    <button className="btn-secondary" onClick={() => openContent(selectedContent.id)}>
                                         <Eye size={16} /> Preview
                                     </button>
                                     <button className="btn-secondary" onClick={() => handleReprocess(selectedContent.id)}>
@@ -590,6 +621,39 @@ const CMS = () => {
                                                 <option key={cat} value={cat}>{cat}</option>
                                             ))}
                                         </select>
+                                        <input
+                                            type="text"
+                                            placeholder="Topic (e.g., Binary Trees)"
+                                            value={file.topic || ''}
+                                            onChange={(e) => {
+                                                const updated = uploadFiles.map(f =>
+                                                    f.id === file.id ? { ...f, topic: e.target.value } : f
+                                                );
+                                                setUploadFiles(updated);
+                                            }}
+                                        />
+                                        <input
+                                            type="number"
+                                            placeholder="Week (e.g., 3)"
+                                            value={file.week || ''}
+                                            onChange={(e) => {
+                                                const updated = uploadFiles.map(f =>
+                                                    f.id === file.id ? { ...f, week: e.target.value } : f
+                                                );
+                                                setUploadFiles(updated);
+                                            }}
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Content type (e.g., lecture_slide, lab_manual)"
+                                            value={file.contentType || ''}
+                                            onChange={(e) => {
+                                                const updated = uploadFiles.map(f =>
+                                                    f.id === file.id ? { ...f, contentType: e.target.value } : f
+                                                );
+                                                setUploadFiles(updated);
+                                            }}
+                                        />
                                         <input
                                             type="text"
                                             placeholder="Add tags (comma separated)"

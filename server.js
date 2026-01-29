@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const { env } = require('./config/env');
 
 const app = express();
 
@@ -9,9 +10,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// REPLACE THIS STRING WITH YOUR ACTUAL ONE
-// Don't forget to swap <db_password> with your real password!
-const MONGO_URI = "mongodb+srv://admin:admin@cluster0.spmmxwe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const MONGO_URI = process.env.MONGO_URI;
+if (!MONGO_URI) {
+  console.error('❌ Missing MONGO_URI in environment. Create a .env (see .env.example).');
+  process.exit(1);
+}
 
 // --- 2. DATABASE CONNECTION ---
 mongoose.connect(MONGO_URI)
@@ -27,8 +30,15 @@ const ValidationResult = require('./models/ValidationResult');
 const HandwrittenNote = require('./models/HandwrittenNote');
 const VideoSummary = require('./models/VideoSummary');
 const CommunityPost = require('./models/CommunityPost');
+const VectorChunk = require('./models/VectorChunk');
+
+// --- 3b. ROUTES ---
+const contentRoutes = require('./routes/contentRoutes');
+const searchRoutes = require('./routes/searchRoutes');
 
 // --- 4. API ROUTES ---
+app.use(contentRoutes);
+app.use(searchRoutes);
 
 // Test Route (To check if server is running)
 app.get('/', (req, res) => {
@@ -68,7 +78,7 @@ app.post('/api/seed', async (req, res) => {
 });
 
 // --- 5. START SERVER ---
-const PORT = 5000;
+const PORT = env.port || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

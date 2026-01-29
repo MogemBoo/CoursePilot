@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "npm --prefix learning-platform run dev",
+    "build": "npm --prefix learning-platform run build",
+    "preview": "npm --prefix learning-platform run preview",
+    "server": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -18,12 +21,20 @@
   "homepage": "https://github.com/MogemBoo/CoursePilot#readme",
   "description": "",
   "dependencies": {
+    "@pinecone-database/pinecone": "^6.1.4",
+    "@supabase/supabase-js": "^2.93.2",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "mongoose": "^9.1.5"
+    "mime-types": "^3.0.2",
+    "mongoose": "^9.1.5",
+    "multer": "^2.0.2",
+    "openai": "^6.17.0",
+    "pdf-parse": "^2.4.5",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "vite": "^7.3.1"
   }
 }
