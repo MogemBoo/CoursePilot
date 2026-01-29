@@ -1,6 +1,5 @@
 .chat-page {
     height: calc(100vh - 6rem);
-    /* Full height minus header */
     display: flex;
     flex-direction: column;
 }
@@ -17,8 +16,27 @@
 /* Header */
 .chat-header {
     padding: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 2px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(255, 0, 255, 0.05));
+    position: relative;
+    overflow: hidden;
+}
+
+.chat-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--accent-primary),
+        var(--accent-secondary),
+        transparent
+    );
+    animation: gradientShift 3s ease infinite;
 }
 
 .chat-title {
@@ -28,10 +46,30 @@
     margin-bottom: 0.25rem;
 }
 
+.chat-title h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 15px rgba(0, 245, 255, 0.6));
+}
+
+.chat-title svg {
+    filter: drop-shadow(0 0 10px var(--accent-primary));
+    animation: pulse 2s ease-in-out infinite;
+}
+
 .chat-subtitle {
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-size: 0.9rem;
     margin-left: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 300;
 }
 
 /* Messages Area */
@@ -42,15 +80,18 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    background: radial-gradient(circle at 20% 50%, rgba(0, 245, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(255, 0, 255, 0.03) 0%, transparent 50%);
 }
 
 .messages-area::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
 }
 
 .messages-area::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 3px;
+    background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
 }
 
 /* Empty State */
@@ -64,6 +105,11 @@
     color: var(--text-muted);
 }
 
+.empty-state svg {
+    filter: drop-shadow(0 0 20px var(--accent-primary));
+    animation: pulse 2s ease-in-out infinite;
+}
+
 .suggestion-chips {
     display: flex;
     flex-direction: column;
@@ -72,24 +118,52 @@
 }
 
 .suggestion-chips button {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-color);
+    background: rgba(0, 245, 255, 0.05);
+    border: 2px solid rgba(0, 245, 255, 0.3);
     padding: 0.75rem 1.5rem;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-md);
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
     text-align: left;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.suggestion-chips button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0, 245, 255, 0.2),
+        transparent
+    );
+    transition: left 0.5s;
 }
 
 .suggestion-chips button:hover {
-    background: rgba(139, 92, 246, 0.1);
+    background: rgba(0, 245, 255, 0.15);
     border-color: var(--accent-primary);
-    color: var(--text-primary);
+    color: var(--accent-primary);
+    transform: translateX(10px);
+    box-shadow: 
+        0 0 20px rgba(0, 245, 255, 0.3),
+        inset 0 0 20px rgba(0, 245, 255, 0.1);
+}
+
+.suggestion-chips button:hover::before {
+    left: 100%;
 }
 
 /* Message Bubbles */
@@ -113,34 +187,59 @@
     padding: 1rem;
     border-radius: var(--radius-lg);
     line-height: 1.6;
+    position: relative;
 }
 
 .message-row.user .message-bubble {
-    background: var(--accent-primary);
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
     color: white;
     border-top-right-radius: 4px;
+    box-shadow: 
+        0 4px 20px rgba(0, 245, 255, 0.4),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.message-row.user .message-bubble::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    border-radius: inherit;
+    pointer-events: none;
 }
 
 .message-row.assistant .message-bubble {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-color);
+    background: rgba(0, 245, 255, 0.05);
+    border: 2px solid rgba(0, 245, 255, 0.3);
     border-top-left-radius: 4px;
+    box-shadow: 
+        0 4px 15px rgba(0, 245, 255, 0.2),
+        inset 0 0 20px rgba(0, 245, 255, 0.05);
 }
 
 .message-icon {
     margin-top: 0.25rem;
     flex-shrink: 0;
+    filter: drop-shadow(0 0 5px var(--accent-primary));
 }
 
 /* Typing Indicator */
 .typing-indicator span {
     display: inline-block;
-    width: 6px;
-    height: 6px;
-    background: var(--text-muted);
+    width: 8px;
+    height: 8px;
+    background: var(--accent-primary);
     border-radius: 50%;
-    margin: 0 2px;
+    margin: 0 3px;
     animation: typing 1.4s infinite ease-in-out both;
+    box-shadow: 0 0 10px var(--accent-primary);
 }
 
 .typing-indicator span:nth-child(1) {
@@ -152,15 +251,13 @@
 }
 
 @keyframes typing {
-
-    0%,
-    80%,
-    100% {
+    0%, 80%, 100% {
         transform: scale(0);
+        opacity: 0;
     }
-
     40% {
         transform: scale(1);
+        opacity: 1;
     }
 }
 
@@ -168,7 +265,7 @@
 .message-sources {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(0, 245, 255, 0.2);
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -180,41 +277,71 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    background: rgba(0, 0, 0, 0.2);
+    padding: 0.35rem 0.75rem;
+    background: rgba(0, 245, 255, 0.1);
     border-radius: 999px;
     color: var(--text-secondary);
-    border: 1px solid transparent;
+    border: 1px solid rgba(0, 245, 255, 0.3);
     cursor: pointer;
-    transition: all 0.15s ease-out;
+    transition: all 0.3s ease;
     font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .source-tag:hover {
     border-color: var(--accent-primary);
-    background: rgba(139, 92, 246, 0.15);
-    color: var(--text-primary);
+    background: rgba(0, 245, 255, 0.2);
+    color: var(--accent-primary);
+    box-shadow: 
+        0 0 15px rgba(0, 245, 255, 0.4),
+        inset 0 0 10px rgba(0, 245, 255, 0.1);
+    transform: translateY(-2px);
 }
 
 /* Input Area */
 .input-area {
     padding: 1.5rem;
-    background: rgba(0, 0, 0, 0.2);
-    border-top: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(26, 26, 46, 0.3));
+    border-top: 2px solid var(--border-color);
+    position: relative;
+}
+
+.input-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--accent-primary),
+        var(--accent-secondary),
+        transparent
+    );
+    opacity: 0.5;
 }
 
 .input-wrapper {
     display: flex;
     gap: 1rem;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.4);
     padding: 0.5rem;
     border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
-    transition: border-color 0.2s;
+    border: 2px solid rgba(0, 245, 255, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: 
+        inset 0 0 20px rgba(0, 245, 255, 0.1),
+        0 0 15px rgba(0, 245, 255, 0.2);
 }
 
 .input-wrapper:focus-within {
     border-color: var(--accent-primary);
+    box-shadow: 
+        inset 0 0 30px rgba(0, 245, 255, 0.15),
+        0 0 25px rgba(0, 245, 255, 0.4);
 }
 
 .input-wrapper textarea {
@@ -227,10 +354,18 @@
     outline: none;
     font-family: inherit;
     max-height: 150px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+}
+
+.input-wrapper textarea::placeholder {
+    color: var(--text-muted);
+    text-transform: none;
 }
 
 .send-btn {
-    background: var(--accent-primary);
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
     color: white;
     border: none;
     width: 42px;
@@ -240,18 +375,46 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
     align-self: flex-end;
+    box-shadow: 
+        0 4px 15px rgba(0, 245, 255, 0.4),
+        inset 0 0 15px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.send-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+}
+
+.send-btn:hover:not(:disabled)::before {
+    width: 100%;
+    height: 100%;
 }
 
 .send-btn:hover:not(:disabled) {
-    transform: scale(1.05);
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 
+        0 6px 25px rgba(0, 245, 255, 0.6),
+        0 0 40px rgba(0, 245, 255, 0.4),
+        inset 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
 .send-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     background: var(--text-muted);
+    box-shadow: none;
 }
 
 .disclaimer {
@@ -259,4 +422,7 @@
     font-size: 0.75rem;
     color: var(--text-muted);
     margin-top: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 300;
 }

@@ -6,7 +6,7 @@ import {
     MessageSquare,
     BookOpen,
     Settings,
-    BrainCircuit
+    FileCode
 } from 'lucide-react';
 import './Sidebar.css';
 
@@ -16,15 +16,12 @@ const Sidebar = () => {
         { icon: Search, label: 'Semantic Search', path: '/search' },
         { icon: MessageSquare, label: 'AI Chat', path: '/chat' },
         { icon: BookOpen, label: 'Content Manager', path: '/cms' },
-        { icon: BrainCircuit, label: 'Content Factory', path: '/content-factory', indent: true },
+        { icon: FileCode, label: 'Content Factory', path: '/content-factory', indent: true },
     ];
 
     return (
         <aside className="sidebar glass-panel">
             <div className="sidebar-header">
-                <div className="logo-icon">
-                    <BrainCircuit size={32} color="var(--accent-secondary)" />
-                </div>
                 <h1 className="logo-text gradient-text">CoursePilot</h1>
             </div>
 

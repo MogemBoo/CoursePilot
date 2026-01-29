@@ -106,7 +106,7 @@ const Chat = () => {
                 <div className="chat-header">
                     <div className="chat-title">
                         <Bot className="text-accent" />
-                        <h2>ScholarSync AI Assistant</h2>
+                        <h2>CoursePilot AI Assistant</h2>
                     </div>
                     <p className="chat-subtitle">Ask me anything about your course materials!</p>
                 </div>
