@@ -11,7 +11,7 @@ const messageSchema = new mongoose.Schema({
 });
 
 const chatSessionSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // Optional for guest sessions
   messages: [messageSchema],
   context: {
     lastSearchQuery: String,

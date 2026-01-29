@@ -35,10 +35,14 @@ const VectorChunk = require('./models/VectorChunk');
 // --- 3b. ROUTES ---
 const contentRoutes = require('./routes/contentRoutes');
 const searchRoutes = require('./routes/searchRoutes');
+const generationRoutes = require('./routes/generationRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 // --- 4. API ROUTES ---
 app.use(contentRoutes);
 app.use(searchRoutes);
+app.use(generationRoutes);
+app.use(chatRoutes);
 
 // Test Route (To check if server is running)
 app.get('/', (req, res) => {
