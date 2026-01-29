@@ -9,9 +9,6 @@ import {
     Eye,
     Search,
     Filter,
-    CheckCircle,
-    Clock,
-    AlertCircle,
     X,
     FolderOpen,
     Tag,
@@ -44,7 +41,6 @@ const CMS = () => {
     const [dragActive, setDragActive] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
-    const [selectedStatus, setSelectedStatus] = useState('all');
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [uploadFiles, setUploadFiles] = useState([]);
     const [selectedContent, setSelectedContent] = useState(null);
@@ -60,7 +56,6 @@ const CMS = () => {
 
     // Categories - fetched from API (fallback to defaults)
     const [categories, setCategories] = useState(['All', 'Theory', 'Lab', 'Machine Learning', 'Deep Learning', 'Programming', 'Computer Science', 'Mathematics', 'Other']);
-    const statuses = ['All', 'Processed', 'Processing', 'Error'];
 
     // Fetch content from API on mount
     useEffect(() => {
@@ -164,19 +159,6 @@ const CMS = () => {
             case 'code': return <Code size={24} />;
             case 'markdown': return <FileCode size={24} />;
             default: return <FileText size={24} />;
-        }
-    };
-
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'processed':
-                return <span className="status-badge status-success"><CheckCircle size={14} /> Processed</span>;
-            case 'processing':
-                return <span className="status-badge status-pending"><Clock size={14} /> Processing</span>;
-            case 'error':
-                return <span className="status-badge status-error"><AlertCircle size={14} /> Error</span>;
-            default:
-                return null;
         }
     };
 
@@ -296,8 +278,7 @@ const CMS = () => {
         const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (item.tags && item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())));
         const matchesCategory = selectedCategory === 'all' || item.category?.toLowerCase() === selectedCategory.toLowerCase();
-        const matchesStatus = selectedStatus === 'all' || item.status?.toLowerCase() === selectedStatus.toLowerCase();
-        return matchesSearch && matchesCategory && matchesStatus;
+        return matchesSearch && matchesCategory;
     });
 
     const deleteContent = async (id) => {
@@ -400,27 +381,6 @@ const CMS = () => {
                         <span className="stat-label">Total Files</span>
                     </div>
                 </div>
-                <div className="stat-item glass-panel">
-                    <CheckCircle size={24} className="stat-icon success" />
-                    <div>
-                        <span className="stat-value">{contentLibrary.filter(c => c.status === 'processed').length}</span>
-                        <span className="stat-label">Processed</span>
-                    </div>
-                </div>
-                <div className="stat-item glass-panel">
-                    <Clock size={24} className="stat-icon pending" />
-                    <div>
-                        <span className="stat-value">{contentLibrary.filter(c => c.status === 'processing').length}</span>
-                        <span className="stat-label">Processing</span>
-                    </div>
-                </div>
-                <div className="stat-item glass-panel">
-                    <AlertCircle size={24} className="stat-icon error" />
-                    <div>
-                        <span className="stat-value">{contentLibrary.filter(c => c.status === 'error').length}</span>
-                        <span className="stat-label">Errors</span>
-                    </div>
-                </div>
             </div>
 
             {/* Content Library */}
@@ -445,17 +405,6 @@ const CMS = () => {
                             >
                                 {categories.map(cat => (
                                     <option key={cat} value={cat.toLowerCase()}>{cat}</option>
-                                ))}
-                            </select>
-                            <ChevronDown size={16} />
-                        </div>
-                        <div className="filter-dropdown">
-                            <select
-                                value={selectedStatus}
-                                onChange={(e) => setSelectedStatus(e.target.value)}
-                            >
-                                {statuses.map(status => (
-                                    <option key={status} value={status.toLowerCase()}>{status}</option>
                                 ))}
                             </select>
                             <ChevronDown size={16} />
@@ -514,12 +463,6 @@ const CMS = () => {
                                         ))}
                                         {item.tags && item.tags.length > 2 && <span className="tag">+{item.tags.length - 2}</span>}
                                     </div>
-                                    <div className="card-footer">
-                                        {getStatusBadge(item.status)}
-                                        {item.status === 'processed' && (
-                                            <span className="chunks-count">{item.chunks} chunks</span>
-                                        )}
-                                    </div>
                                 </div>
                             ))
                         )}
@@ -539,7 +482,6 @@ const CMS = () => {
                                     {getFileIcon(selectedContent.type)}
                                 </div>
                                 <h4>{selectedContent.name}</h4>
-                                {getStatusBadge(selectedContent.status)}
 
                                 <div className="detail-section">
                                     <label>Description</label>
@@ -576,10 +518,6 @@ const CMS = () => {
                                     <div className="detail-item">
                                         <label>File Type</label>
                                         <span className="type-badge">{selectedContent.type.toUpperCase()}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                        <label>Chunks Created</label>
-                                        <span>{selectedContent.chunks}</span>
                                     </div>
                                 </div>
 

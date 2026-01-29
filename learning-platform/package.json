@@ -12,6 +12,7 @@
   "dependencies": {
     "@pinecone-database/pinecone": "^6.1.4",
     "@supabase/supabase-js": "^2.93.2",
+    "jspdf": "^2.5.1",
     "lucide-react": "^0.563.0",
     "mime-types": "^3.0.2",
     "multer": "^2.0.2",

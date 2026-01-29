@@ -25,7 +25,7 @@ const Sidebar = () => {
                 <div className="logo-icon">
                     <BrainCircuit size={32} color="var(--accent-secondary)" />
                 </div>
-                <h1 className="logo-text gradient-text">Synapse</h1>
+                <h1 className="logo-text gradient-text">CoursePilot</h1>
             </div>
 
             <nav className="sidebar-nav">

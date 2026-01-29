@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
     Sparkles, FileText, Beaker, Code2, Presentation, FileDown,
-    Copy, Download, CheckCircle, AlertTriangle, XCircle,
+    Copy, CheckCircle, AlertTriangle, XCircle,
     Shield, RefreshCw, Clock, Loader2
 } from 'lucide-react';
+import jsPDF from 'jspdf';
 import './ContentFactory.css';
 
 const API_BASE = 'http://localhost:5000';
@@ -122,16 +123,49 @@ const ContentFactory = () => {
         }
     };
 
-    const handleDownload = () => {
+    const handleDownloadPdf = () => {
         if (!generatedContent?.content) return;
 
-        const blob = new Blob([generatedContent.content], { type: 'text/markdown' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${generatedContent.topic || 'content'}.md`;
-        a.click();
-        URL.revokeObjectURL(url);
+        const doc = new jsPDF({
+            unit: 'pt',
+            format: 'a4',
+        });
+
+        const margin = 40;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const maxWidth = pageWidth - margin * 2;
+        const lineHeight = 16;
+
+        const title = generatedContent.topic || 'Generated Content';
+        const content = generatedContent.content;
+
+        let y = margin;
+
+        // Title
+        doc.setFontSize(16);
+        const titleLines = doc.splitTextToSize(title, maxWidth);
+        titleLines.forEach((line) => {
+            doc.text(line, margin, y);
+            y += lineHeight;
+        });
+
+        y += lineHeight / 2;
+
+        // Body text
+        doc.setFontSize(11);
+        const bodyLines = doc.splitTextToSize(content, maxWidth);
+
+        bodyLines.forEach((line) => {
+            if (y > pageHeight - margin) {
+                doc.addPage();
+                y = margin;
+            }
+            doc.text(line, margin, y);
+            y += lineHeight;
+        });
+
+        doc.save(`${generatedContent.topic || 'content'}.pdf`);
     };
 
     const loadHistoryItem = async (id) => {
@@ -305,8 +339,8 @@ const ContentFactory = () => {
                                     <button className="cf-action-btn" onClick={handleCopy} title="Copy">
                                         <Copy size={14} />
                                     </button>
-                                    <button className="cf-action-btn" onClick={handleDownload} title="Download">
-                                        <Download size={14} />
+                                    <button className="cf-action-btn" onClick={handleDownloadPdf} title="Download as PDF">
+                                        <FileDown size={14} />
                                     </button>
                                 </div>
                             </div>

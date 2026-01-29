@@ -505,10 +505,7 @@ button:disabled {
     color: #ef4444;
 }
 
-.chunks-count {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
+/* .chunks-count styles removed as chunk display is no longer shown */
 
 /* Details Panel */
 .details-panel {

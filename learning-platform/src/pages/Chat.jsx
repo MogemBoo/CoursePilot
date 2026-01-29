@@ -10,6 +10,7 @@ const Chat = () => {
     const [loading, setLoading] = useState(false);
     const [sessionId, setSessionId] = useState(null);
     const messagesEndRef = useRef(null);
+    const [isSessionReady, setIsSessionReady] = useState(false);
 
     useEffect(() => {
         // Create or retrieve session on mount
@@ -23,14 +24,14 @@ const Chat = () => {
     const createSession = async () => {
         try {
             // In a real app, you might check localStorage for an existing sessionId
-            // For now, we'll create a new one or just use a dummy user ID if auth isn't fully ready
+            // For this demo, we create an anonymous chat session on the backend
             const res = await fetch(`${API_BASE}/api/chat/session`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: 'dummy-user-id' }) // Replace with auth context
             });
             const data = await res.json();
             setSessionId(data.sessionId);
+            setIsSessionReady(true);
         } catch (err) {
             console.error('Failed to init session:', err);
         }
@@ -41,7 +42,7 @@ const Chat = () => {
     };
 
     const handleSend = async () => {
-        if (!input.trim() || !sessionId) return;
+        if (!input.trim() || !sessionId || loading) return;
 
         const userMsg = { sender: 'user', text: input };
         setMessages(prev => [...prev, userMsg]);
@@ -78,6 +79,18 @@ const Chat = () => {
         }
     };
 
+    const handleQuickPrompt = (prompt) => {
+        setInput(prompt);
+        // Optionally auto-send:
+        // handleSend();
+    };
+
+    const handleReferenceClick = (ref) => {
+        if (!ref.materialId) return;
+        const url = `${API_BASE}/api/content/${ref.materialId}/open`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+    };
+
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -104,16 +117,19 @@ const Chat = () => {
                         <div className="empty-state">
                             <Sparkles size={48} className="text-accent opacity-50 mb-4" />
                             <h3>How can I help you today?</h3>
-                            <p>Try asking about:</p>
+                            <p>Try one of these shortcuts to use core features:</p>
                             <div className="suggestion-chips">
-                                <button onClick={() => setInput("Summarize the last lecture on Neural Networks")}>
-                                    📝 Summarize the last lecture
+                                <button onClick={() => handleQuickPrompt("Search the course materials for introduction to neural networks and list the key topics.")}>
+                                    🔍 Search course materials
                                 </button>
-                                <button onClick={() => setInput("Generate a quiz about Data Structures")}>
-                                    ❓ Generate a quiz
+                                <button onClick={() => handleQuickPrompt("Summarize the lecture on Decision Trees using my uploaded slides.")}>
+                                    📝 Summarize existing content
                                 </button>
-                                <button onClick={() => setInput("Explain 'Polymorphism' with code examples")}>
-                                    💻 Explain key concepts
+                                <button onClick={() => handleQuickPrompt("Generate detailed theory notes for Lab 3: Hash Tables, aligned with my course materials.")}>
+                                    📚 Generate theory material
+                                </button>
+                                <button onClick={() => handleQuickPrompt("Generate a lab assignment with starter code and tasks for Binary Search Trees in Python.")}>
+                                    🧪 Generate lab material
                                 </button>
                             </div>
                         </div>
@@ -131,12 +147,17 @@ const Chat = () => {
                                     {/* References Section */}
                                     {msg.references && msg.references.length > 0 && (
                                         <div className="message-sources">
-                                            <span>Sources:</span>
+                                            <span>Grounded in:</span>
                                             {msg.references.map((ref, i) => (
-                                                <div key={i} className="source-tag">
+                                                <button
+                                                    key={i}
+                                                    type="button"
+                                                    className="source-tag"
+                                                    onClick={() => handleReferenceClick(ref)}
+                                                >
                                                     <BookOpen size={12} />
                                                     {ref.title || 'Course Material'}
-                                                </div>
+                                                </button>
                                             ))}
                                         </div>
                                     )}
@@ -171,7 +192,7 @@ const Chat = () => {
                         <button
                             className="send-btn"
                             onClick={handleSend}
-                            disabled={!input.trim() || loading}
+                            disabled={!input.trim() || loading || !isSessionReady}
                         >
                             <Send size={20} />
                         </button>

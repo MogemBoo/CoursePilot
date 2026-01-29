@@ -4,8 +4,7 @@ const mime = require('mime-types');
 const { v4: uuidv4 } = require('uuid');
 
 const CourseMaterial = require('../models/CourseMaterial');
-const { env, assertRagEnv } = require('../config/env');
-const { getSupabase } = require('../services/clients/supabaseClient');
+const { assertRagEnv } = require('../config/env');
 const { ingestMaterial } = require('../services/ingestionService');
 
 const router = express.Router();
@@ -56,7 +55,7 @@ router.get('/api/content', async (req, res) => {
   res.json(items.map(toCmsListItem));
 });
 
-// Upload content (CMS) -> stores file in Supabase and creates CourseMaterial row
+// Upload content (CMS) -> stores file in MongoDB and creates CourseMaterial row
 router.post('/api/content/upload', upload.single('file'), async (req, res) => {
   try {
     assertRagEnv();
@@ -77,27 +76,11 @@ router.post('/api/content/upload', upload.single('file'), async (req, res) => {
       tags = [];
     }
 
-    const sb = getSupabase();
     const originalName = req.file.originalname || `upload-${Date.now()}`;
     const ext = (originalName.split('.').pop() || '').toLowerCase();
     const objectPath = `${Date.now()}-${uuidv4()}-${originalName}`.replace(/[^\w.\-()/ ]/g, '_');
 
     const contentType = req.file.mimetype || mime.lookup(originalName) || 'application/octet-stream';
-
-    const { error: upErr } = await sb.storage
-      .from(env.supabaseBucket)
-      .upload(objectPath, req.file.buffer, {
-        contentType,
-        upsert: false,
-      });
-
-    if (upErr) return res.status(500).json({ error: `Supabase upload failed: ${upErr.message}` });
-
-    let publicUrl = null;
-    if (env.supabasePublicBucket) {
-      const { data } = sb.storage.from(env.supabaseBucket).getPublicUrl(objectPath);
-      publicUrl = data?.publicUrl || null;
-    }
 
     // NOTE: For hackathon we don’t implement auth yet; default uploadedBy to the first admin if present
     const uploadedBy = req.body.uploadedBy || undefined;
@@ -106,8 +89,9 @@ router.post('/api/content/upload', upload.single('file'), async (req, res) => {
       title: originalName,
       type: inferMaterialType(originalName),
       category,
-      link: publicUrl,
-      filePath: objectPath,
+      // We now store the binary file data directly in MongoDB instead of Supabase
+      fileData: req.file.buffer,
+      filePath: null,
       originalFileName: originalName,
       mimeType: contentType,
       sizeBytes: req.file.size,
@@ -138,16 +122,8 @@ router.post('/api/content/upload', upload.single('file'), async (req, res) => {
 // Delete content (CMS)
 router.delete('/api/content/:id', async (req, res) => {
   try {
-    assertRagEnv();
-
     const doc = await CourseMaterial.findById(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
-
-    // delete file from supabase (best-effort)
-    if (doc.filePath) {
-      const sb = getSupabase();
-      await sb.storage.from(env.supabaseBucket).remove([doc.filePath]);
-    }
 
     await doc.deleteOne();
     res.json({ ok: true });
@@ -159,24 +135,34 @@ router.delete('/api/content/:id', async (req, res) => {
 // Get a short-lived signed URL for viewing/downloading (for private buckets)
 router.get('/api/content/:id/open', async (req, res) => {
   try {
-    assertRagEnv();
-
     const doc = await CourseMaterial.findById(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
 
+    // If there's a direct link (e.g. external URL), keep using it
     if (doc.link) return res.json({ url: doc.link });
-    if (!doc.filePath) return res.status(400).json({ error: 'No filePath on material' });
+    if (!doc.fileData) return res.status(400).json({ error: 'No file data on material' });
 
-    const sb = getSupabase();
-    const { data, error } = await sb.storage.from(env.supabaseBucket).createSignedUrl(doc.filePath, 60 * 10);
-    if (error) {
-      console.error('❌ Supabase createSignedUrl error:', error);
-      return res.status(500).json({ error: error.message });
-    }
-
-    res.json({ url: data.signedUrl });
+    // For files stored in MongoDB, expose a simple download endpoint
+    const fileUrl = `/api/content/${doc._id.toString()}/file`;
+    res.json({ url: fileUrl });
   } catch (e) {
     console.error('❌ /api/content/:id/open error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Download the raw file bytes for a material stored in MongoDB
+router.get('/api/content/:id/file', async (req, res) => {
+  try {
+    const doc = await CourseMaterial.findById(req.params.id);
+    if (!doc) return res.status(404).json({ error: 'Not found' });
+    if (!doc.fileData) return res.status(404).json({ error: 'No file data on material' });
+
+    res.setHeader('Content-Type', doc.mimeType || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `inline; filename="${doc.originalFileName || 'file'}"`);
+    res.send(doc.fileData);
+  } catch (e) {
+    console.error('❌ /api/content/:id/file error:', e);
     res.status(500).json({ error: e.message });
   }
 });

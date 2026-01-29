@@ -6,7 +6,8 @@ const courseMaterialSchema = new mongoose.Schema({
   // Allows both hackathon “Theory/Lab” and arbitrary course categories (e.g., “Machine Learning”)
   category: { type: String, required: true, default: 'Other' },
   link: { type: String }, // URL to the file or external resource
-  filePath: { type: String }, // Storage path (Supabase object path)
+  filePath: { type: String }, // Legacy storage path (Supabase object path) - no longer used
+  fileData: { type: Buffer }, // Binary file data stored directly in MongoDB
   content: { type: String }, // Text content for search/indexing
   contentType: { type: String }, // More specific type (e.g., 'lecture_slide', 'lab_manual', 'textbook_chapter')
   originalFileName: { type: String },

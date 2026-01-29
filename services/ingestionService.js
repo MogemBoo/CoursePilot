@@ -1,12 +1,10 @@
 const CourseMaterial = require('../models/CourseMaterial');
 const VectorChunk = require('../models/VectorChunk');
 
-const { getSupabase } = require('./clients/supabaseClient');
 const { getPineconeIndex } = require('./clients/pineconeClient');
 const { extractText } = require('./textExtractor');
 const { chunkText } = require('./chunker');
 const { embedTexts } = require('./embeddingService');
-const { env } = require('../config/env');
 
 function pineconeIdFor(materialId, chunkIndex) {
   return `mat_${materialId}_chunk_${chunkIndex}`;
@@ -18,11 +16,10 @@ function extOf(fileName) {
 }
 
 async function downloadMaterialBuffer(material) {
-  const sb = getSupabase();
-  const { data, error } = await sb.storage.from(env.supabaseBucket).download(material.filePath);
-  if (error) throw new Error(`Supabase download failed: ${error.message}`);
-  const ab = await data.arrayBuffer();
-  return Buffer.from(ab);
+  if (material.fileData) {
+    return material.fileData;
+  }
+  throw new Error('Material has no stored file data');
 }
 
 async function clearExistingVectors(materialId) {
@@ -37,7 +34,7 @@ async function clearExistingVectors(materialId) {
 async function ingestMaterial(materialId) {
   const material = await CourseMaterial.findById(materialId);
   if (!material) throw new Error('Material not found');
-  if (!material.filePath) throw new Error('Material has no stored filePath');
+  if (!material.fileData) throw new Error('Material has no stored file data');
 
   material.processingStatus = 'processing';
   await material.save();
