@@ -28,21 +28,21 @@ router.post('/api/search/semantic', async (req, res) => {
   }
 });
 
-// Suggestions endpoint (autocomplete) based on Mongo metadata
+// Suggestions endpoint (autocomplete) based on Mongo metadata + filenames
 router.get('/api/search/suggestions', async (req, res) => {
   try {
     const q = (req.query.q || '').toString().toLowerCase().trim();
     const limit = Math.min(Number(req.query.limit || 8), 20);
 
-    // Simple suggestion pool: titles + topics + tags + categories
     const docs = await CourseMaterial.find()
-      .select('title category metadata.topic metadata.tags')
+      .select('title originalFileName category metadata.topic metadata.tags')
       .limit(300)
       .lean();
 
     const pool = [];
     for (const d of docs) {
       if (d.title) pool.push(d.title);
+      if (d.originalFileName) pool.push(d.originalFileName);
       if (d.category) pool.push(d.category);
       if (d.metadata?.topic) pool.push(d.metadata.topic);
       if (Array.isArray(d.metadata?.tags)) pool.push(...d.metadata.tags);

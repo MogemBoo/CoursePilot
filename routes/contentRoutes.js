@@ -124,7 +124,9 @@ router.post('/api/content/upload', upload.single('file'), async (req, res) => {
 
     // Trigger ingestion in background so UI feels instant
     setImmediate(() => {
-      ingestMaterial(doc._id.toString()).catch(() => {});
+      ingestMaterial(doc._id.toString()).catch((err) => {
+        console.error('❌ Ingestion failed for', doc._id.toString(), err?.message || err);
+      });
     });
 
     res.status(201).json({ message: 'Uploaded', materialId: doc._id.toString(), item: toCmsListItem(doc) });
@@ -167,10 +169,14 @@ router.get('/api/content/:id/open', async (req, res) => {
 
     const sb = getSupabase();
     const { data, error } = await sb.storage.from(env.supabaseBucket).createSignedUrl(doc.filePath, 60 * 10);
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) {
+      console.error('❌ Supabase createSignedUrl error:', error);
+      return res.status(500).json({ error: error.message });
+    }
 
     res.json({ url: data.signedUrl });
   } catch (e) {
+    console.error('❌ /api/content/:id/open error:', e);
     res.status(500).json({ error: e.message });
   }
 });

@@ -80,7 +80,7 @@ async function ingestMaterial(materialId) {
         category: material.category,
         type: material.type,
         topic: material.metadata?.topic || '',
-        week: material.metadata?.week || null,
+        week: material.metadata?.week ?? '',
         tags: material.metadata?.tags || [],
         fileName: material.originalFileName || material.title,
         fileExt: extOf(material.originalFileName || material.title),
@@ -113,7 +113,15 @@ async function ingestMaterial(materialId) {
       },
     }));
 
-    await VectorChunk.insertMany(chunkDocs);
+    try {
+      await VectorChunk.insertMany(chunkDocs);
+    } catch (err) {
+      if (err.code === 11000) {
+        console.warn('⚠️ Duplicate key error ignoring (race condition):', err.message);
+      } else {
+        throw err;
+      }
+    }
 
     material.processingStatus = 'processed';
     material.chunksCount = chunks.length;
@@ -124,6 +132,10 @@ async function ingestMaterial(materialId) {
   } catch (e) {
     material.processingStatus = 'error';
     await material.save();
+    console.error('❌ ingestMaterial error:', {
+      materialId: materialId.toString(),
+      message: e?.message,
+    });
     throw e;
   }
 }
