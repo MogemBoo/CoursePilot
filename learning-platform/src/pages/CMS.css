@@ -1,4 +1,4 @@
-/* CMS Page Styles */
+/* CMS Page Styles - Cyberpunk Theme */
 .cms-page {
     max-width: 1600px;
 }
@@ -11,13 +11,22 @@
 }
 
 .cms-header h1 {
+    font-family: 'Orbitron', sans-serif;
     font-size: 2.5rem;
     margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
 }
 
 .cms-subtitle {
     color: var(--text-secondary);
     font-size: 1.1rem;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 1px;
 }
 
 .cms-header-actions {
@@ -29,18 +38,23 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
+    background: transparent;
+    color: var(--neon-cyan);
     padding: 0.75rem 1.25rem;
     border-radius: var(--radius-md);
-    font-weight: 500;
+    font-weight: 600;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     transition: all var(--transition-speed) ease;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--neon-cyan);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
 }
 
 .btn-secondary:hover {
-    background: var(--bg-secondary);
-    border-color: var(--accent-primary);
+    background: rgba(0, 240, 255, 0.1);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
 }
 
 .btn-primary {
@@ -53,17 +67,23 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
+    background: transparent;
+    color: var(--neon-red, #ff0044);
     padding: 0.75rem 1.25rem;
     border-radius: var(--radius-md);
-    font-weight: 500;
+    font-weight: 600;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     transition: all var(--transition-speed) ease;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    border: 1px solid var(--neon-red, #ff0044);
+    box-shadow: 0 0 10px rgba(255, 0, 68, 0.2);
 }
 
 .btn-danger:hover {
-    background: rgba(239, 68, 68, 0.3);
+    background: rgba(255, 0, 68, 0.2);
+    box-shadow: 0 0 20px rgba(255, 0, 68, 0.4);
 }
 
 /* Spinning animation for loading states */
@@ -89,26 +109,43 @@ button:disabled {
     font-style: italic;
 }
 
-/* Upload Zone */
+/* Upload Zone - Cyberpunk */
 .upload-zone {
     padding: 3rem;
     border-radius: var(--radius-lg);
     text-align: center;
     cursor: pointer;
     transition: all var(--transition-speed) ease;
-    border: 2px dashed var(--border-color);
+    border: 2px dashed var(--neon-cyan);
     margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
+    background: rgba(0, 240, 255, 0.02);
 }
 
 .upload-zone::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(255, 0, 255, 0.05));
     opacity: 0;
     transition: opacity var(--transition-speed) ease;
+}
+
+.upload-zone::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.1), transparent);
+    animation: scan 3s linear infinite;
+}
+
+@keyframes scan {
+    0% { left: -50%; }
+    100% { left: 150%; }
 }
 
 .upload-zone:hover::before,
@@ -118,38 +155,53 @@ button:disabled {
 
 .upload-zone:hover,
 .upload-zone.drag-active {
-    border-color: var(--accent-primary);
+    border-color: var(--neon-magenta);
     transform: translateY(-2px);
+    box-shadow: 
+        0 0 30px rgba(0, 240, 255, 0.3),
+        0 0 60px rgba(255, 0, 255, 0.1);
 }
 
 .upload-icon-wrapper {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 1.5rem;
-    color: white;
-    box-shadow: 0 8px 24px var(--accent-glow);
+    color: #000;
+    box-shadow: 
+        0 0 20px var(--accent-glow),
+        0 0 40px rgba(255, 0, 255, 0.3);
+    animation: pulse-icon 2s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+    0%, 100% { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(255, 0, 255, 0.3); }
+    50% { box-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(255, 0, 255, 0.5); }
 }
 
 .upload-zone h3 {
-    font-size: 1.25rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
     margin-bottom: 0.5rem;
     color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .upload-zone p {
     color: var(--text-muted);
     margin-bottom: 1.5rem;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 .supported-formats {
     display: flex;
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1rem;
     flex-wrap: wrap;
 }
 
@@ -158,13 +210,17 @@ button:disabled {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    background: var(--bg-tertiary);
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.3);
     border-radius: var(--radius-sm);
-    font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-family: 'Rajdhani', sans-serif;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* Statistics Bar */
+/* Statistics Bar - Cyberpunk */
 .stats-bar {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -178,26 +234,44 @@ button:disabled {
     gap: 1rem;
     padding: 1.25rem;
     border-radius: var(--radius-md);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--neon-cyan), var(--neon-magenta));
 }
 
 .stat-icon {
-    color: var(--accent-primary);
+    color: var(--neon-cyan);
+    filter: drop-shadow(0 0 5px var(--neon-cyan));
 }
 
 .stat-icon.success {
-    color: #10b981;
+    color: var(--neon-green, #00ff88);
+    filter: drop-shadow(0 0 5px #00ff88);
 }
 
 .stat-icon.pending {
-    color: #f59e0b;
+    color: var(--neon-yellow, #ffff00);
+    filter: drop-shadow(0 0 5px #ffff00);
 }
 
 .stat-icon.error {
-    color: #ef4444;
+    color: var(--neon-red, #ff0044);
+    filter: drop-shadow(0 0 5px #ff0044);
 }
 
 .stat-value {
     display: block;
+    font-family: 'Orbitron', sans-serif;
     font-size: 1.75rem;
     font-weight: 700;
     color: var(--text-primary);
@@ -205,16 +279,30 @@ button:disabled {
 
 .stat-label {
     display: block;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
+    font-family: 'Rajdhani', sans-serif;
     color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* Content Library Section */
+/* Content Library Section - Cyberpunk */
 .content-library-section {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
+    position: relative;
+}
+
+.content-library-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-magenta), transparent);
 }
 
 .library-header {
@@ -230,8 +318,11 @@ button:disabled {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-size: 1.25rem;
-    color: var(--text-primary);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .library-controls {
@@ -244,11 +335,17 @@ button:disabled {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: var(--bg-tertiary);
+    background: rgba(0, 240, 255, 0.05);
     padding: 0.625rem 1rem;
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(0, 240, 255, 0.3);
     min-width: 280px;
+    transition: all var(--transition-speed) ease;
+}
+
+.search-box:focus-within {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
 }
 
 .search-box input {
@@ -257,6 +354,7 @@ button:disabled {
     outline: none;
     color: var(--text-primary);
     font-size: 0.9rem;
+    font-family: 'Rajdhani', sans-serif;
     width: 100%;
 }
 
@@ -265,18 +363,23 @@ button:disabled {
 }
 
 .search-box svg {
-    color: var(--text-muted);
+    color: var(--neon-cyan);
 }
 
 .filter-dropdown {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: var(--bg-tertiary);
+    background: rgba(0, 240, 255, 0.05);
     padding: 0.625rem 1rem;
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(0, 240, 255, 0.3);
     position: relative;
+    transition: all var(--transition-speed) ease;
+}
+
+.filter-dropdown:hover {
+    border-color: var(--neon-cyan);
 }
 
 .filter-dropdown select {
@@ -285,20 +388,26 @@ button:disabled {
     outline: none;
     color: var(--text-primary);
     font-size: 0.9rem;
+    font-family: 'Rajdhani', sans-serif;
     cursor: pointer;
     appearance: none;
     padding-right: 1.5rem;
+}
+
+.filter-dropdown select option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 .filter-dropdown svg:last-child {
     position: absolute;
     right: 0.75rem;
     pointer-events: none;
-    color: var(--text-muted);
+    color: var(--neon-cyan);
 }
 
 .filter-dropdown svg:first-child {
-    color: var(--text-muted);
+    color: var(--neon-cyan);
 }
 
 /* Content Grid */
@@ -324,39 +433,69 @@ button:disabled {
     padding: 4rem 2rem;
     text-align: center;
     border-radius: var(--radius-md);
+    border: 1px dashed rgba(0, 240, 255, 0.3);
 }
 
 .empty-state svg {
-    color: var(--text-muted);
+    color: var(--neon-cyan);
     margin-bottom: 1rem;
+    opacity: 0.5;
 }
 
 .empty-state h3 {
     margin-bottom: 0.5rem;
     color: var(--text-secondary);
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1rem;
 }
 
 .empty-state p {
     color: var(--text-muted);
+    font-family: 'Rajdhani', sans-serif;
 }
 
-/* Content Card */
+/* Content Card - Cyberpunk */
 .content-card {
     padding: 1.25rem;
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: all var(--transition-speed) ease;
-    border: 1px solid transparent;
+    border: 1px solid rgba(0, 240, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.content-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--transition-speed) ease;
+}
+
+.content-card:hover::before {
+    transform: scaleX(1);
 }
 
 .content-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--border-color);
+    transform: translateY(-4px);
+    border-color: rgba(0, 240, 255, 0.3);
+    box-shadow: 
+        0 0 20px rgba(0, 240, 255, 0.15),
+        0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .content-card.selected {
-    border-color: var(--accent-primary);
-    background: rgba(99, 102, 241, 0.1);
+    border-color: var(--neon-cyan);
+    background: rgba(0, 240, 255, 0.05);
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
 }
 
 .card-header {
@@ -373,27 +512,44 @@ button:disabled {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #000;
+    position: relative;
+}
+
+.file-icon::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: var(--radius-sm);
+    background: inherit;
+    filter: blur(8px);
+    opacity: 0.5;
+    z-index: -1;
 }
 
 .file-icon.pdf {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
+    background: linear-gradient(135deg, #ff0044, #ff006a);
+    box-shadow: 0 0 15px rgba(255, 0, 68, 0.4);
 }
 
 .file-icon.pptx {
-    background: linear-gradient(135deg, #f97316, #ea580c);
+    background: linear-gradient(135deg, #ff6b00, #ffaa00);
+    box-shadow: 0 0 15px rgba(255, 107, 0, 0.4);
 }
 
 .file-icon.code {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: linear-gradient(135deg, #00ff88, #00ffcc);
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
 }
 
 .file-icon.markdown {
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    background: linear-gradient(135deg, #00f0ff, #00aaff);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
 }
 
 .file-icon.other {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    background: linear-gradient(135deg, #ff00ff, #aa00ff);
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
 }
 
 .card-actions {
@@ -414,25 +570,29 @@ button:disabled {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--neon-cyan);
     transition: all var(--transition-speed) ease;
-    border: none;
+    border: 1px solid transparent;
     cursor: pointer;
 }
 
 .icon-btn:hover {
-    background: var(--accent-primary);
-    color: white;
+    background: var(--neon-cyan);
+    color: #000;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
 }
 
 .icon-btn.danger:hover {
-    background: #ef4444;
+    background: var(--neon-red, #ff0044);
+    border-color: transparent;
+    box-shadow: 0 0 15px rgba(255, 0, 68, 0.5);
 }
 
 .card-title {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
+    font-family: 'Rajdhani', sans-serif;
     color: var(--text-primary);
     margin-bottom: 0.75rem;
     white-space: nowrap;
@@ -450,7 +610,8 @@ button:disabled {
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    font-family: 'Rajdhani', sans-serif;
     color: var(--text-muted);
 }
 
@@ -466,10 +627,14 @@ button:disabled {
     align-items: center;
     gap: 0.25rem;
     padding: 0.25rem 0.5rem;
-    background: var(--bg-tertiary);
+    background: rgba(255, 0, 255, 0.1);
+    border: 1px solid rgba(255, 0, 255, 0.3);
     border-radius: var(--radius-sm);
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-family: 'Rajdhani', sans-serif;
+    color: var(--neon-magenta);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .card-footer {
@@ -477,7 +642,7 @@ button:disabled {
     justify-content: space-between;
     align-items: center;
     padding-top: 0.75rem;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid rgba(0, 240, 255, 0.1);
 }
 
 .status-badge {
@@ -485,32 +650,39 @@ button:disabled {
     align-items: center;
     gap: 0.35rem;
     padding: 0.35rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-family: 'Orbitron', sans-serif;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .status-success {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--neon-green, #00ff88);
+    border: 1px solid rgba(0, 255, 136, 0.3);
 }
 
 .status-pending {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
+    background: rgba(255, 255, 0, 0.1);
+    color: var(--neon-yellow, #ffff00);
+    border: 1px solid rgba(255, 255, 0, 0.3);
 }
 
 .status-error {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    background: rgba(255, 0, 68, 0.1);
+    color: var(--neon-red, #ff0044);
+    border: 1px solid rgba(255, 0, 68, 0.3);
 }
 
 .chunks-count {
-    font-size: 0.8rem;
-    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--neon-cyan);
 }
 
-/* Details Panel */
+/* Details Panel - Cyberpunk */
 .details-panel {
     width: 360px;
     min-width: 360px;
@@ -519,6 +691,18 @@ button:disabled {
     position: sticky;
     top: 1rem;
     animation: slideIn 0.3s ease;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    position: relative;
+}
+
+.details-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
 }
 
 @keyframes slideIn {
@@ -537,12 +721,15 @@ button:disabled {
     justify-content: space-between;
     align-items: center;
     padding: 1.25rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
 }
 
 .details-header h3 {
-    font-size: 1rem;
-    color: var(--text-primary);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .details-content {
@@ -579,26 +766,32 @@ button:disabled {
 
 .detail-section label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    font-family: 'Orbitron', sans-serif;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
+    letter-spacing: 1px;
+    color: var(--neon-cyan);
     margin-bottom: 0.5rem;
 }
 
 .detail-section p {
     color: var(--text-secondary);
     font-size: 0.9rem;
+    font-family: 'Rajdhani', sans-serif;
     line-height: 1.5;
 }
 
 .category-badge {
     display: inline-block;
     padding: 0.35rem 0.75rem;
-    background: var(--bg-tertiary);
+    background: rgba(255, 0, 255, 0.1);
+    border: 1px solid rgba(255, 0, 255, 0.3);
     border-radius: var(--radius-sm);
-    font-size: 0.875rem;
-    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-family: 'Rajdhani', sans-serif;
+    color: var(--neon-magenta);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .detail-tags {
@@ -616,25 +809,28 @@ button:disabled {
 
 .detail-item label {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+    font-family: 'Orbitron', sans-serif;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     color: var(--text-muted);
     margin-bottom: 0.25rem;
 }
 
 .detail-item span {
     font-size: 0.9rem;
+    font-family: 'Rajdhani', sans-serif;
     color: var(--text-primary);
 }
 
 .type-badge {
     display: inline-block;
     padding: 0.2rem 0.5rem;
-    background: var(--accent-primary);
-    color: white;
-    border-radius: var(--radius-sm);
-    font-size: 0.75rem;
+    background: var(--neon-cyan);
+    color: #000;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-family: 'Orbitron', sans-serif;
     font-weight: 600;
 }
 
@@ -649,12 +845,12 @@ button:disabled {
     justify-content: center;
 }
 
-/* Upload Modal */
+/* Upload Modal - Cyberpunk */
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -669,6 +865,24 @@ button:disabled {
     border-radius: var(--radius-lg);
     overflow: hidden;
     animation: scaleIn 0.3s ease;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    position: relative;
+}
+
+.upload-modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta), var(--neon-cyan));
+    animation: borderGlow 2s linear infinite;
+}
+
+@keyframes borderGlow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
 }
 
 @keyframes scaleIn {
@@ -687,15 +901,18 @@ button:disabled {
     justify-content: space-between;
     align-items: center;
     padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
 }
 
 .modal-header h3 {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-size: 1.1rem;
-    color: var(--text-primary);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .modal-content {
@@ -709,7 +926,8 @@ button:disabled {
     align-items: center;
     gap: 1rem;
     padding: 1rem;
-    background: var(--bg-tertiary);
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid rgba(0, 240, 255, 0.2);
     border-radius: var(--radius-md);
     margin-bottom: 1rem;
 }
@@ -737,7 +955,8 @@ button:disabled {
 }
 
 .file-info h4 {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    font-family: 'Rajdhani', sans-serif;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
@@ -746,7 +965,8 @@ button:disabled {
 }
 
 .file-info span {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    font-family: 'Rajdhani', sans-serif;
     color: var(--text-muted);
 }
 
@@ -760,17 +980,24 @@ button:disabled {
 .file-meta-inputs input {
     flex: 1;
     padding: 0.5rem 0.75rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid rgba(0, 240, 255, 0.3);
     border-radius: var(--radius-sm);
     color: var(--text-primary);
-    font-size: 0.875rem;
+    font-size: 0.85rem;
+    font-family: 'Rajdhani', sans-serif;
+    transition: all var(--transition-speed) ease;
+}
+
+.file-meta-inputs select option {
+    background: var(--bg-secondary);
 }
 
 .file-meta-inputs select:focus,
 .file-meta-inputs input:focus {
     outline: none;
-    border-color: var(--accent-primary);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
 }
 
 .file-meta-inputs input::placeholder {
@@ -782,7 +1009,7 @@ button:disabled {
     justify-content: flex-end;
     gap: 1rem;
     padding: 1.25rem 1.5rem;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid rgba(0, 240, 255, 0.2);
 }
 
 /* Responsive */

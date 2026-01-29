@@ -22,10 +22,7 @@ const Sidebar = () => {
     return (
         <aside className="sidebar glass-panel">
             <div className="sidebar-header">
-                <div className="logo-icon">
-                    <BrainCircuit size={32} color="var(--accent-secondary)" />
-                </div>
-                <h1 className="logo-text gradient-text">Synapse</h1>
+                <h1 className="logo-text">Course<span className="logo-accent">Pilot</span></h1>
             </div>
 
             <nav className="sidebar-nav">
