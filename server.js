@@ -17,9 +17,35 @@ if (!MONGO_URI) {
 }
 
 // --- 2. DATABASE CONNECTION ---
-mongoose.connect(MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected Successfully!"))
-  .catch(err => console.error("❌ Connection Error:", err));
+// Set mongoose to buffer commands if connection is not ready
+mongoose.set('bufferCommands', false);
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(MONGO_URI, {
+      serverSelectionTimeoutMS: 10000, // Timeout after 10s
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 10000,
+    });
+    console.log("✅ MongoDB Connected Successfully!");
+  } catch (err) {
+    console.error("❌ MongoDB Connection Error:", err.message);
+    console.log("⚠️  Server will continue running, but database features will be limited.");
+    console.log("💡 Check your MONGO_URI in .env file and ensure MongoDB is accessible.");
+  }
+};
+
+// Connect to database (non-blocking)
+connectDB();
+
+// Handle connection events
+mongoose.connection.on('disconnected', () => {
+  console.log('⚠️  MongoDB disconnected. Attempting to reconnect...');
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('✅ MongoDB reconnected successfully!');
+});
 
 // --- 3. IMPORT MODELS ---
 const User = require('./models/User');
@@ -37,12 +63,14 @@ const contentRoutes = require('./routes/contentRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const generationRoutes = require('./routes/generationRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 // --- 4. API ROUTES ---
 app.use(contentRoutes);
 app.use(searchRoutes);
 app.use(generationRoutes);
 app.use(chatRoutes);
+app.use(dashboardRoutes);
 
 // Test Route (To check if server is running)
 app.get('/', (req, res) => {
