@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Search as SearchIcon, Filter, ExternalLink, Loader2, Tag } from 'lucide-react';
+import { Search as SearchIcon, Filter, ExternalLink, Loader2, Tag, Download } from 'lucide-react';
 
 const API_BASE = ''; // Vite proxy -> backend
 
@@ -88,7 +88,16 @@ const Search = () => {
             });
             const data = await resp.json();
             if (!resp.ok) throw new Error(data.error || 'Search failed');
-            setResults(data.results || []);
+            const raw = data.results || [];
+            // Deduplicate by filename (one result per unique file)
+            const seen = new Set();
+            const deduped = raw.filter((r) => {
+                const key = (r?.source?.fileName || r?.source?.title || r?.chunkId || '').toString();
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+            setResults(deduped);
         } catch (e) {
             setError(e.message);
         } finally {
@@ -96,19 +105,32 @@ const Search = () => {
         }
     };
 
-    const openInContext = async (r) => {
+    const openOrDownload = async (r, asDownload = false) => {
         try {
-            const url = r?.source?.openUrl;
-            if (url) {
-                window.open(url, '_blank', 'noreferrer');
+            let url = r?.source?.openUrl;
+            if (!url && r?.source?.materialId) {
+                const ep = `${API_BASE}/api/content/${r.source.materialId}/open`;
+                const resp = await fetch(ep);
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || 'Failed to get file URL');
+                url = data.url;
+            }
+            if (!url) {
+                setError('No file URL available for this result.');
                 return;
             }
-            const ep = r?.source?.openUrlEndpoint;
-            if (!ep) return;
-            const resp = await fetch(`${API_BASE}${ep}`);
-            const data = await resp.json();
-            if (!resp.ok) throw new Error(data.error || 'Failed to get file URL');
-            window.open(data.url, '_blank', 'noreferrer');
+            if (asDownload) {
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = r?.source?.fileName || r?.source?.title || 'download';
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                window.open(url, '_blank', 'noreferrer');
+            }
         } catch (e) {
             setError(e.message);
         }
@@ -130,7 +152,7 @@ const Search = () => {
                         onKeyDown={(e) => { if (e.key === 'Enter') { setShowSuggestions(false); runSearch(); } }}
                         onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                         type="text"
-                        placeholder="Ask about Binary Trees, or paste a lab error…"
+                        placeholder="Search by filename (e.g., test.pdf) or topic (e.g., Binary Trees)…"
                         style={{
                             width: '100%',
                             padding: '0.95rem 1rem 0.95rem 3rem',
@@ -257,20 +279,21 @@ const Search = () => {
                         <div key={r.chunkId} className="glass-panel" style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'start' }}>
                                 <div>
-                                    <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{r.source.title}</div>
+                                    <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{r.source.fileName || r.source.title}</div>
                                     <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.15rem' }}>
                                         {r.source.category ? `[${r.source.category}] ` : ''}{r.source.type ? `${String(r.source.type).toUpperCase()}` : ''}
-                                        {r.source.week != null ? ` • Week ${r.source.week}` : ''}
+                                        {r.source.week != null && r.source.week !== '' ? ` • Week ${r.source.week}` : ''}
                                         {r.source.topic ? ` • ${r.source.topic}` : ''}
                                     </div>
                                 </div>
-                                <button className="btn-secondary" onClick={() => openInContext(r)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                    <ExternalLink size={16} /> Open in context
-                                </button>
-                            </div>
-
-                            <div style={{ marginTop: '0.9rem', whiteSpace: 'pre-wrap', lineHeight: 1.65 }}>
-                                {highlight(r.snippet, query)}
+                                <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                                    <button className="btn-primary" onClick={() => openOrDownload(r)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                        <ExternalLink size={16} /> Open
+                                    </button>
+                                    <button className="btn-secondary" onClick={() => openOrDownload(r, true)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                        <Download size={16} /> Download
+                                    </button>
+                                </div>
                             </div>
 
                             {Array.isArray(r.source.tags) && r.source.tags.length > 0 && (

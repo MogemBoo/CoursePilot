@@ -110,11 +110,19 @@ const CMS = () => {
             body: formData,
         });
 
+        const contentType = response.headers.get('content-type') || '';
+        const isJson = contentType.includes('application/json');
+        const payload = isJson ? await response.json().catch(() => ({})) : await response.text().catch(() => '');
+
         if (!response.ok) {
-            throw new Error(`Upload failed: ${response.statusText}`);
+            const msg =
+                (payload && typeof payload === 'object' && payload.error) ? payload.error :
+                (typeof payload === 'string' && payload) ? payload :
+                response.statusText;
+            throw new Error(`Upload failed: ${msg}`);
         }
 
-        return await response.json();
+        return payload;
     };
 
     const deleteFromServer = async (id) => {
@@ -134,11 +142,19 @@ const CMS = () => {
             method: 'POST',
         });
 
+        const contentType = response.headers.get('content-type') || '';
+        const isJson = contentType.includes('application/json');
+        const payload = isJson ? await response.json().catch(() => ({})) : await response.text().catch(() => '');
+
         if (!response.ok) {
-            throw new Error(`Reprocess failed: ${response.statusText}`);
+            const msg =
+                (payload && typeof payload === 'object' && payload.error) ? payload.error :
+                (typeof payload === 'string' && payload) ? payload :
+                response.statusText;
+            throw new Error(`Reprocess failed: ${msg}`);
         }
 
-        return await response.json();
+        return payload;
     };
 
     const getFileIcon = (type) => {
