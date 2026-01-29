@@ -1,0 +1,13 @@
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    /* Width of sidebar */
+    min-height: 100vh;
+    position: relative;
+    background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.05), transparent 40%);
+}
